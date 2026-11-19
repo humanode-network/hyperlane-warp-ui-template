@@ -15,3 +15,8 @@ export function resolveTestRoutes(): { primary: string; secondary: string; skip:
     skip: false,
   };
 }
+
+// Forks with an empty whitelist (e.g. the Humanode bridge) drop every canonical
+// registry route and ship only their own EVM routes, so tests that need
+// non-EVM chains/wallets or specific canonical routes are skipped there.
+export const onlyCustomRoutes = resolveTestRoutes().skip;

@@ -2,11 +2,13 @@ import { expect, test } from '@playwright/test';
 import { selectOriginToken } from '../helpers/formFlow';
 import { openE2EApp, waitForWarpRuntime } from '../helpers/page-setup';
 import { installSolanaRpcMock } from '../helpers/solanaRpc';
+import { onlyCustomRoutes } from '../../helpers/constants';
 
 const USDC_MINT_SOLANAMAINNET = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
 test.describe('Solana balance display', () => {
   test('renders mocked SPL balance for solanamainnet USDC in origin card', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Solana routes: the bridge routes are EVM-only');
     await installSolanaRpcMock(page, {
       spl: {
         balancesByMint: {

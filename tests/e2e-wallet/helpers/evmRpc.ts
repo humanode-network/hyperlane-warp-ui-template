@@ -48,6 +48,22 @@ export interface InstallEvmRpcMockOptions {
   // routers(uint32) result keyed by remote domain. Falls back to a
   // deterministic address derived from the requested domain.
   routerByDomain?: Record<number, string>;
+  // PACKAGE_VERSION() result. Defaults to "6.0.0" (pre-token-fee contracts:
+  // the SDK quotes gas via quoteGasPayment). Set >= "10.0.0" to make the SDK
+  // use quoteTransferRemote and honour `transferQuotes`.
+  packageVersion?: string;
+  // quoteTransferRemote(uint32,bytes32,uint256) per router, keyed
+  // `${chainId}:${routerLower}`. Returns the TokenRouter Quote[] convention:
+  // [(0x0, igp), (feeToken, amount + amount * feeBps / 10000), (feeToken, 0)].
+  transferQuotes?: Record<string, TransferQuoteFixture>;
+}
+
+export interface TransferQuoteFixture {
+  // IGP payment in the origin chain's native token (hex wei).
+  igp: string;
+  // Denomination of the warp fee: 0x0 for native routes, else the ERC20.
+  feeToken: string;
+  feeBps: number;
 }
 
 export interface EvmRpcMockHandle {
@@ -268,7 +284,18 @@ function handleEthCall(call: { to?: string; data?: string }, ctx: HandleCtx): st
   // warpCore.getTransferRemoteTxs / estimateTransferRemoteFees (semver parse).
 
   // PACKAGE_VERSION() — string; "6.0.0" passes all compareVersions gates.
-  if (data.startsWith('0x93c44847')) return encodeString('6.0.0');
+  if (data.startsWith('0x93c44847')) return encodeString(ctx.opts.packageVersion ?? '6.0.0');
+  // quoteTransferRemote(uint32,bytes32,uint256) — Quote[] (only when fixtured).
+  const quote = ctx.opts.transferQuotes?.[`${ctx.chainId ?? '?'}:${to}`];
+  if (data.startsWith('0x8bd90b82') && quote) {
+    const amount = BigInt('0x' + data.slice(138, 202));
+    const withFee = amount + (amount * BigInt(quote.feeBps)) / 10_000n;
+    return encodeQuotes([
+      ['0x0', BigInt(quote.igp)],
+      [quote.feeToken, withFee],
+      [quote.feeToken, 0n],
+    ]);
+  }
   // wrappedToken() — Hyperlane HypCollateral queries this to discover the
   // underlying ERC20 before calling balanceOf. Must return a real address,
   // otherwise the SDK reads balanceOf on 0x0 and the collateral check fails.
@@ -310,6 +337,12 @@ function handleEthCall(call: { to?: string; data?: string }, ctx: HandleCtx): st
 function padHex(hex: string): string {
   const stripped = hex.startsWith('0x') ? hex.slice(2) : hex;
   return '0x' + stripped.padStart(64, '0');
+}
+
+function encodeQuotes(quotes: Array<[string, bigint]>): string {
+  const words = ['20', quotes.length.toString(16)];
+  for (const [token, amount] of quotes) words.push(token.replace(/^0x/, ''), amount.toString(16));
+  return '0x' + words.map((w) => w.padStart(64, '0')).join('');
 }
 
 function encodeString(s: string): string {

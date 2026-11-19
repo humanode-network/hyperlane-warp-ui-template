@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { getOriginTokenButton } from '../helpers/locators';
+import { onlyCustomRoutes } from '../helpers/constants';
 
 test.describe('Chain Selection - Filter by Protocol', () => {
   test('should filter chains by Sealevel protocol', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Sealevel chains: the bridge routes are EVM-only');
     await page.goto('http://localhost:3000');
     await page.getByText('Send').first().waitFor({ state: 'visible' });
 
@@ -24,6 +26,7 @@ test.describe('Chain Selection - Filter by Protocol', () => {
   });
 
   test('should filter chains by Cosmos protocol', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Cosmos chains: the bridge routes are EVM-only');
     await page.goto('http://localhost:3000');
     await page.getByText('Send').first().waitFor({ state: 'visible' });
 
@@ -38,6 +41,7 @@ test.describe('Chain Selection - Filter by Protocol', () => {
   });
 
   test('should clear filters', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     await page.goto('http://localhost:3000');
     await page.getByText('Send').first().waitFor({ state: 'visible' });
 

@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { getOriginTokenButton } from '../helpers/locators';
+import { onlyCustomRoutes } from '../helpers/constants';
 
 test.describe('Token Selection - Filter Chains', () => {
   test('should filter chains by search', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     await page.goto('http://localhost:3000');
     await page.getByText('Send').first().waitFor({ state: 'visible' });
 

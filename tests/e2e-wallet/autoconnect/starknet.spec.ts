@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { openE2EApp } from '../helpers/page-setup';
+import { onlyCustomRoutes } from '../../helpers/constants';
 
 test.describe('Starknet mock connector: auto-connect', () => {
   test('connects to MockStarknetConnector and renders a shortened address', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Starknet routes: the bridge routes are EVM-only');
     await openE2EApp(page, {
       extraQuery: {
         origin: 'starknet',

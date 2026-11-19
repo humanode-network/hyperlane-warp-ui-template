@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { selectDestinationToken, selectOriginToken } from '../helpers/formFlow';
 import { openE2EApp } from '../helpers/page-setup';
+import { onlyCustomRoutes } from '../../helpers/constants';
 
 test.describe('Solana same-symbol dedup', () => {
   test('Solana USDC vs Eclipse USDC render distinct chain labels in origin field', async ({
     page,
   }) => {
+    test.skip(onlyCustomRoutes, 'no Solana routes: the bridge routes are EVM-only');
     await openE2EApp(page);
 
     await selectOriginToken(page, /solanamainnet USDC/i);
@@ -20,6 +22,7 @@ test.describe('Solana same-symbol dedup', () => {
   });
 
   test('destination USDC selection on a Solana route is chain-scoped', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Solana routes: the bridge routes are EVM-only');
     await openE2EApp(page);
     await selectOriginToken(page, /solanamainnet USDC/i);
     await selectDestinationToken(page, /eclipsemainnet USDC/i);

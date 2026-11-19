@@ -3,6 +3,7 @@ import { MOCK_EVM_ADDRESS } from '../helpers/constants';
 import { installEvmRpcMock, ROUTER_COLLATERAL_SEED } from '../helpers/evmRpc';
 import { enterAmount, selectOriginToken } from '../helpers/formFlow';
 import { openE2EApp } from '../helpers/page-setup';
+import { onlyCustomRoutes } from '../../helpers/constants';
 
 const USDC_ARBITRUM = '0xaf88d065e77c8cc2239327c5edb3a432268e5831';
 
@@ -10,6 +11,7 @@ test.describe('EVM same-symbol dedup', () => {
   test('selecting Arbitrum USDC resolves the Arbitrum-scoped route (not Ethereum)', async ({
     page,
   }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     await installEvmRpcMock(page, {
       chainUrlMap: [
         { chainId: 1, urlMatch: /ethereum\.|eth\.drpc|eth-mainnet/i },

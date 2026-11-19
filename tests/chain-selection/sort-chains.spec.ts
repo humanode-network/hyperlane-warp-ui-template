@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { getOriginTokenButton } from '../helpers/locators';
+import { onlyCustomRoutes } from '../helpers/constants';
 
 test.describe('Chain Selection - Sort Chains', () => {
   test('should open sort dropdown and show sort options', async ({ page }) => {
@@ -41,6 +42,7 @@ test.describe('Chain Selection - Sort Chains', () => {
   });
 
   test('should toggle sort order', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     await page.goto('http://localhost:3000');
     await page.getByText('Send').first().waitFor({ state: 'visible' });
 
