@@ -1,11 +1,15 @@
-import type { MultiProtocolProvider } from '@hyperlane-xyz/sdk';
+import type { ChainName, MultiProtocolProvider } from '@hyperlane-xyz/sdk';
 import { useQuery } from '@tanstack/react-query';
+import { type Hex, createPublicClient, http, parseAbi, parseAbiItem } from 'viem';
 
 import { logger } from '../../utils/logger';
-import { executeGraphQLQuery } from './graphqlClient';
-import { buildMessageByIdQuery } from './queries/build';
-import { parseTimestamp, postgresByteaToTxHash } from './queries/encoding';
-import type { MessageStubEntry } from './queries/fragments';
+import { useStore } from '../store';
+
+// Humanode bridge: delivery is read from the destination chain's Mailbox, not the Hyperlane
+// explorer API, which does not index the bridge's chains. processedAt is not in the SDK's
+// IMailbox interface, hence the local ABI.
+const mailboxAbi = parseAbi(['function processedAt(bytes32 messageId) view returns (uint48)']);
+const processIdEvent = parseAbiItem('event ProcessId(bytes32 indexed messageId)');
 
 const POLL_INTERVAL_MS = 10_000;
 
@@ -14,6 +18,8 @@ export interface MessageDeliveryResult {
   isDelivered: boolean;
   /** Destination transaction hash (only when delivered) */
   destinationTxHash?: string;
+  /** Destination block number (only when delivered) */
+  destinationBlockNumber?: number;
   /** Origin timestamp in ms */
   originTimestamp?: number;
   /** Origin block height from GraphQL (fallback for page refresh) */
@@ -23,37 +29,44 @@ export interface MessageDeliveryResult {
 }
 
 /**
- * Queries GraphQL for a single message by msgId.
+ * Reads a message's delivery from the destination Mailbox (see readDelivery).
  * Polls while the modal is open and message is not yet delivered.
  */
 export function useMessageDeliveryStatus(
   msgId: string | undefined,
+  destination: ChainName | undefined,
   isOpen: boolean,
   multiProvider: MultiProtocolProvider,
 ): MessageDeliveryResult {
+  const mailbox = useStore((s) =>
+    destination ? s.chainAddresses[destination]?.mailbox : undefined,
+  );
+  if (msgId && destination && !mailbox) {
+    logger.error(
+      'No Mailbox address for the destination chain, cannot track delivery',
+      destination,
+    );
+  }
   const { data, isLoading } = useQuery({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps -- multiProvider is stable, adding it causes unnecessary refetches
-    queryKey: ['messageDelivery', msgId],
+    queryKey: ['messageDelivery', msgId, destination, mailbox],
     queryFn: async () => {
-      if (!msgId) return null;
-      const queryData = buildMessageByIdQuery(msgId);
-      const result = await executeGraphQLQuery<{ message_view: MessageStubEntry[] }>(
-        queryData.query,
-        queryData.variables,
-      );
-      if (result.type === 'error') {
-        logger.error('Failed to query message delivery status', result.error);
+      const rpcUrl = destination
+        ? multiProvider.tryGetChainMetadata(destination)?.rpcUrls?.[0]?.http
+        : undefined;
+      if (!msgId || !mailbox || !rpcUrl) return null;
+      try {
+        return await readDelivery(rpcUrl, mailbox as Hex, msgId as Hex);
+      } catch (error) {
+        logger.error('Failed to read message delivery status', error);
         return null;
       }
-      const entry = result.data.message_view?.[0];
-      if (!entry) return null;
-      return parseDeliveryResult(entry, multiProvider);
     },
-    enabled: !!msgId && isOpen,
+    enabled: !!msgId && !!mailbox && isOpen,
     staleTime: 30_000,
     refetchInterval: (query) => {
-      // Stop polling once delivered
-      if (query.state.data?.isDelivered) return false;
+      // Stop polling once delivered and the delivery transaction is known
+      if (query.state.data?.isDelivered && query.state.data.destinationTxHash) return false;
       return POLL_INTERVAL_MS;
     },
     refetchOnWindowFocus: false,
@@ -62,25 +75,44 @@ export function useMessageDeliveryStatus(
   return {
     isDelivered: data?.isDelivered ?? false,
     destinationTxHash: data?.destinationTxHash,
+    destinationBlockNumber: data?.destinationBlockNumber,
     originTimestamp: data?.originTimestamp,
     originBlockHeight: data?.originBlockHeight,
     isLoading,
   };
 }
 
-function parseDeliveryResult(
-  entry: MessageStubEntry,
-  multiProvider: MultiProtocolProvider,
-): Omit<MessageDeliveryResult, 'isLoading'> {
-  const destMetadata = multiProvider.tryGetChainMetadata(entry.destination_domain_id);
-
-  return {
-    isDelivered: entry.is_delivered,
-    destinationTxHash:
-      entry.is_delivered && entry.destination_tx_hash
-        ? postgresByteaToTxHash(entry.destination_tx_hash, destMetadata)
-        : undefined,
-    originTimestamp: parseTimestamp(entry.send_occurred_at),
-    originBlockHeight: entry.origin_block_height,
-  };
+/**
+ * Mailbox.processedAt(msgId) gives the delivery block (0 while undelivered); the ProcessId log
+ * in that one block gives the delivery transaction. A failed or empty log read still reports
+ * the delivery, without the hash, and the hook polls again for it.
+ */
+export async function readDelivery(
+  rpcUrl: string,
+  mailbox: Hex,
+  msgId: Hex,
+): Promise<Omit<MessageDeliveryResult, 'isLoading'>> {
+  const client = createPublicClient({ transport: http(rpcUrl) });
+  const block = await client.readContract({
+    address: mailbox,
+    abi: mailboxAbi,
+    functionName: 'processedAt',
+    args: [msgId],
+  });
+  if (!block) return { isDelivered: false };
+  const blockNumber = BigInt(block);
+  let destinationTxHash: string | undefined;
+  try {
+    const logs = await client.getLogs({
+      address: mailbox,
+      event: processIdEvent,
+      args: { messageId: msgId },
+      fromBlock: blockNumber,
+      toBlock: blockNumber,
+    });
+    destinationTxHash = logs[0]?.transactionHash;
+  } catch (error) {
+    logger.warn('Delivered, but the ProcessId log could not be read yet', error);
+  }
+  return { isDelivered: true, destinationTxHash, destinationBlockNumber: Number(blockNumber) };
 }

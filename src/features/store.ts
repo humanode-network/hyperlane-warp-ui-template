@@ -100,6 +100,7 @@ export interface AppState {
       originTxHash?: string;
       originBlockNumber?: number;
       destinationTxHash?: string;
+      destinationBlockNumber?: number;
     },
   ) => void;
   failUnconfirmedTransfers: () => void;
@@ -233,6 +234,7 @@ export const useStore = create<AppState>()(
           txs[i].originTxHash ||= options?.originTxHash;
           txs[i].originBlockNumber ||= options?.originBlockNumber;
           txs[i].destinationTxHash ||= options?.destinationTxHash;
+          txs[i].destinationBlockNumber ||= options?.destinationBlockNumber;
           return {
             transfers: txs,
           };

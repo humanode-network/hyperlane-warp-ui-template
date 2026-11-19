@@ -100,6 +100,7 @@ export function TransfersDetailsModal({
 
   const delivery = useMessageDeliveryStatus(
     shouldTrackDelivery ? msgId : undefined,
+    destination,
     isOpen,
     multiProvider,
   );
@@ -181,11 +182,13 @@ export function TransfersDetailsModal({
       hasUpdatedDelivery.current = true;
       updateTransferStatus(transferIndex, TransferStatus.Delivered, {
         destinationTxHash: delivery.destinationTxHash,
+        destinationBlockNumber: delivery.destinationBlockNumber,
       });
     }
   }, [
     delivery.isDelivered,
     delivery.destinationTxHash,
+    delivery.destinationBlockNumber,
     transferIndex,
     status,
     updateTransferStatus,
