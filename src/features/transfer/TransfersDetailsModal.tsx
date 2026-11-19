@@ -23,7 +23,7 @@ import ArrowRightIcon from '../../images/icons/arrow-right.svg';
 import LinkIcon from '../../images/icons/external-link-icon.svg';
 import { Color } from '../../styles/Color';
 import { formatTimestamp } from '../../utils/date';
-import { getHypExplorerLink } from '../../utils/links';
+import { getHypExplorerLink, getTxExplorerUrl } from '../../utils/links';
 import { logger } from '../../utils/logger';
 import { useMultiProvider } from '../chains/hooks';
 import { getChainDisplayName, hasPermissionlessChain } from '../chains/utils';
@@ -76,6 +76,7 @@ export function TransfersDetailsModal({
     msgId,
     timestamp,
     destinationTxHash: storedDestTxHash,
+    destinationBlockNumber: storedDestBlockNumber,
   } = transfer || {};
 
   const multiProvider = useMultiProvider();
@@ -126,6 +127,7 @@ export function TransfersDetailsModal({
 
   // Resolve the destination tx hash from either store or live query
   const destinationTxHash = storedDestTxHash || delivery.destinationTxHash;
+  const destinationBlockNumber = storedDestBlockNumber || delivery.destinationBlockNumber;
 
   const isAccountReady = !!account?.isReady;
   const connectorName = walletDetails.name || 'wallet';
@@ -206,13 +208,16 @@ export function TransfersDetailsModal({
         setOriginTxUrl('');
         setDestTxUrl('');
         if (originTxHash) {
-          const txUrl = multiProvider.tryGetExplorerTxUrl(origin, { hash: originTxHash });
+          const txUrl = getTxExplorerUrl(multiProvider, origin, originTxHash, originBlockNumber);
           if (txUrl && !cancelled) setOriginTxUrl(fixDoubleSlash(txUrl));
         }
         if (destinationTxHash) {
-          const txUrl = multiProvider.tryGetExplorerTxUrl(destination, {
-            hash: destinationTxHash,
-          });
+          const txUrl = getTxExplorerUrl(
+            multiProvider,
+            destination,
+            destinationTxHash,
+            destinationBlockNumber,
+          );
           if (txUrl && !cancelled) setDestTxUrl(fixDoubleSlash(txUrl));
         }
         const [fetchedFromUrl, fetchedToUrl] = await Promise.all([
@@ -237,7 +242,9 @@ export function TransfersDetailsModal({
     origin,
     destination,
     originTxHash,
+    originBlockNumber,
     destinationTxHash,
+    destinationBlockNumber,
     sender,
     recipient,
   ]);

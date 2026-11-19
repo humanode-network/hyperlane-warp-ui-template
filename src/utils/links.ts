@@ -24,3 +24,24 @@ export function getHypExplorerLink(
   const params = new URLSearchParams({ chains: serializedConfig });
   return `${baseLink}?${params.toString()}`;
 }
+
+// Chains without an EVM explorer: link to polkadot.js apps by block number, since it finds
+// blocks, not EVM transaction hashes. On Humanode the EVM and Substrate block numbers match.
+const POLKADOT_JS_RPC_BY_CHAIN: Record<ChainName, string> = {
+  humanodetestnet5: 'wss://explorer-rpc-ws.testnet5.stages.humanode.io',
+};
+
+export function getTxExplorerUrl(
+  multiProvider: MultiProtocolProvider,
+  chain: ChainName,
+  hash: string,
+  blockNumber?: number,
+): string | null {
+  const polkadotJsRpc = POLKADOT_JS_RPC_BY_CHAIN[chain];
+  if (polkadotJsRpc) {
+    if (!blockNumber) return null;
+    const rpc = encodeURIComponent(polkadotJsRpc);
+    return `https://polkadot.js.org/apps/?rpc=${rpc}#/explorer/query/${blockNumber}`;
+  }
+  return multiProvider.tryGetExplorerTxUrl(chain, { hash });
+}
