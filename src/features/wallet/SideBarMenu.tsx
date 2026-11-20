@@ -14,6 +14,7 @@ import { formatTransferHistoryTimestamp } from '../../utils/date';
 import { logger } from '../../utils/logger';
 import { useMultiProvider } from '../chains/hooks';
 import { getChainDisplayName } from '../chains/utils';
+import { recheckStoredTransfers } from '../messages/recheckTransfers';
 import { MessageStatus } from '../messages/types';
 import {
   messageToTransferContext,
@@ -21,7 +22,7 @@ import {
   TransferItemType,
   useMergedTransferHistory,
 } from '../messages/useMergedTransferHistory';
-import { useMessageHistory } from '../messages/useMessageHistory';
+import { HISTORY_FROM_EXPLORER, useMessageHistory } from '../messages/useMessageHistory';
 import { useStore } from '../store';
 import { tryFindToken, useWarpCore } from '../tokens/hooks';
 import { TokenChainIcon } from '../tokens/TokenChainIcon';
@@ -147,6 +148,11 @@ export function SideBarMenu({
     setIsMenuOpen(isOpen);
   }, [isOpen]);
 
+  // Humanode bridge: correct the stored history from chain each time the sidebar opens
+  useEffect(() => {
+    if (isOpen) void recheckStoredTransfers(multiProvider);
+  }, [isOpen, multiProvider]);
+
   useEffect(() => {
     if (!isMenuOpen) return;
     return startRelativeTimeTicker({
@@ -196,19 +202,22 @@ export function SideBarMenu({
             <span className="text-base font-normal tracking-wider text-white">
               Transfer History
             </span>
-            <button
-              onClick={refresh}
-              disabled={isLoading}
-              className="sidebar-menu-refresh rounded p-1 hover:bg-accent-500/50 disabled:opacity-50"
-              title="Refresh"
-            >
-              <RefreshIcon
-                width={20}
-                height={20}
-                color="white"
-                className={isLoading ? 'animate-spin' : ''}
-              />
-            </button>
+            {/* The refresh button reloads the explorer history, which is off */}
+            {HISTORY_FROM_EXPLORER && (
+              <button
+                onClick={refresh}
+                disabled={isLoading}
+                className="sidebar-menu-refresh rounded p-1 hover:bg-accent-500/50 disabled:opacity-50"
+                title="Refresh"
+              >
+                <RefreshIcon
+                  width={20}
+                  height={20}
+                  color="white"
+                  className={isLoading ? 'animate-spin' : ''}
+                />
+              </button>
+            )}
           </div>
           <div className="flex grow flex-col pb-4">
             {isRefreshing ? (
@@ -280,6 +289,8 @@ function TransferSummary({
   warpCore: ReturnType<typeof useWarpCore>;
   nowMs: number;
 }) {
+  // Humanode bridge: the store updates a transfer in place, so its status is a dependency too
+  const localStatus = item.type === TransferItemType.Local ? item.data.status : undefined;
   const { originChain, destChain, amount, destAmount, status, token, destToken, timestamp } =
     useMemo(() => {
       if (item.type === TransferItemType.Local) {
@@ -326,7 +337,8 @@ function TransferSummary({
         destToken,
         timestamp: msg.origin.timestamp,
       };
-    }, [item.type, item.data, multiProvider, warpCore]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- localStatus: see above
+    }, [item.type, item.data, localStatus, multiProvider, warpCore]);
 
   return (
     <button onClick={onClick} className={`${styles.btn} justify-between py-3`}>
