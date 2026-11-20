@@ -31,6 +31,8 @@ function initWagmi(multiProvider: MultiProtocolProvider, e2e: boolean) {
     [
       {
         groupName: 'Recommended',
+        // No injectedWallet either: it has the same window.ethereum fallback. EIP-6963 lists the
+        // installed wallets.
         wallets: [metaMaskWallet, walletConnectWallet, ledgerWallet],
       },
       {
