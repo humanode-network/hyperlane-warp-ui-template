@@ -22,7 +22,7 @@ export default defineConfig({
         'chain-selection/filter-by-protocol.spec.ts',
         'e2e-wallet/{approval,balance-display,destination-router,same-symbol-dedup,tx-payload}/**',
         'e2e-wallet/autoconnect/{cosmos,solana,starknet}.spec.ts',
-        'token-selection/**',
+        'token-selection/{filter-chains,select-destination-token,select-origin-token}.spec.ts',
       ]
     : [],
   /* Run tests in files in parallel */
