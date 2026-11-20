@@ -3,11 +3,9 @@ import { MOCK_EVM_ADDRESS } from '../helpers/constants';
 import { installEvmRpcMock } from '../helpers/evmRpc';
 import { selectOriginToken } from '../helpers/formFlow';
 import { openE2EApp } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 test.describe('EVM balance display', () => {
   test('renders mocked ERC20 balance in transfer form', async ({ page }) => {
-    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     await installEvmRpcMock(page, {
       chainUrlMap: [
         { chainId: 1, urlMatch: /ethereum\.|eth\.drpc|eth-mainnet|cloudflare-eth/i },

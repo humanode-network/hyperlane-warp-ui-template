@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+import { onlyCustomRoutes } from '../../helpers/constants';
 import {
   BASE_SEPOLIA_CHAIN_ID,
   bridgeRoutesConfigured,
@@ -28,7 +29,9 @@ test.describe('Humanode bridge: HMND transferRemote payload', () => {
   test('default Humanode→Base Sepolia HMND Send emits transferRemote with amount + fee + IGP as value', async ({
     page,
   }) => {
-    test.skip(!bridgeRoutesConfigured, 'the bridge routes are not in warpRoutes.yaml yet');
+    // Runs with the bridge-only config (empty whitelist); there the bridge routes must exist.
+    test.skip(!onlyCustomRoutes, 'needs the bridge-only route config');
+    expect(bridgeRoutesConfigured, 'the bridge routes are missing from warpRoutes.yaml').toBe(true);
     const { txs } = await installEvmRpcMock(page, bridgeRpcMock());
 
     await openE2EApp(page);
