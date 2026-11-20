@@ -24,7 +24,7 @@ const PAGE_LIMIT = 15;
 const REFRESH_INTERVAL_MS = 60_000;
 // Humanode bridge: off. The Hyperlane explorer API does not index the bridge's chains, and
 // each poll sent the user's wallet addresses to it. The sidebar keeps the local history.
-const HISTORY_FROM_EXPLORER = false;
+export const HISTORY_FROM_EXPLORER = false;
 
 interface UseMessageHistoryResult {
   messages: MessageStub[];
