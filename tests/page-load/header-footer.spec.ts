@@ -14,7 +14,6 @@ test.describe('Page Load - Header and Footer', () => {
     await expect(footer.getByRole('link', { name: 'X.com' })).toBeVisible();
     await expect(footer.getByRole('link', { name: 'Humanode' })).toBeVisible();
     await expect(footer.getByRole('link', { name: 'Support' })).toBeVisible();
-    await expect(footer.getByRole('link', { name: 'Docs' })).toBeVisible();
     await expect(footer.getByRole('link', { name: 'Github' })).toBeVisible();
   });
 });

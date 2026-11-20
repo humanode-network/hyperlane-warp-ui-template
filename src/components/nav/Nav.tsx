@@ -5,7 +5,6 @@ import { forwardRef, ReactNode } from 'react';
 
 import { links } from '../../consts/links';
 import { Color } from '../../styles/Color';
-import { BookIcon } from '../icons/BookIcon';
 import { QuestionMarkIcon } from '../icons/QuestionMarkIcon';
 import { WebSimpleIcon } from '../icons/WebSimpleIcon';
 import { XIcon } from '../icons/XIcon';
@@ -23,11 +22,6 @@ export const navLinks: NavLinkItem[] = [
     title: 'Support',
     url: links.support,
     icon: <QuestionMarkIcon width={20} height={20} color={Color.primary[500]} />,
-  },
-  {
-    title: 'Docs',
-    url: links.docs,
-    icon: <BookIcon color={Color.primary[500]} width={23} height={16} />,
   },
   {
     title: 'Github',
