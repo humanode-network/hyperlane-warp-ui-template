@@ -315,7 +315,7 @@ export function TransfersDetailsModal({
                 status={messageStatus}
                 stage={stage}
                 timings={DEFAULT_TIMINGS}
-                timestampSent={timestamp}
+                timestampSent={delivery.originTimestamp}
                 hideDescriptions={true}
                 iconPosition="inline"
                 barClassName="bg-accent-gradient"
