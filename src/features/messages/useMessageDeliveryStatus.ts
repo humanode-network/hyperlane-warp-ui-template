@@ -1,6 +1,7 @@
 import type { ChainName, MultiProtocolProvider } from '@hyperlane-xyz/sdk';
 import { useQuery } from '@tanstack/react-query';
-import { type Hex, createPublicClient, http, parseAbi, parseAbiItem } from 'viem';
+import { useEffect } from 'react';
+import { type Hex, type PublicClient, parseAbi, parseAbiItem } from 'viem';
 
 import { logger } from '../../utils/logger';
 import { useStore } from '../store';
@@ -41,22 +42,24 @@ export function useMessageDeliveryStatus(
   const mailbox = useStore((s) =>
     destination ? s.chainAddresses[destination]?.mailbox : undefined,
   );
-  if (msgId && destination && !mailbox) {
-    logger.error(
-      'No Mailbox address for the destination chain, cannot track delivery',
-      destination,
-    );
-  }
+  useEffect(() => {
+    if (msgId && destination && !mailbox)
+      logger.error(
+        'No Mailbox address for the destination chain, cannot track delivery',
+        destination,
+      );
+  }, [msgId, destination, mailbox]);
   const { data, isLoading } = useQuery({
     // eslint-disable-next-line @tanstack/query/exhaustive-deps -- multiProvider is stable, adding it causes unnecessary refetches
     queryKey: ['messageDelivery', msgId, destination, mailbox],
     queryFn: async () => {
-      const rpcUrl = destination
-        ? multiProvider.tryGetChainMetadata(destination)?.rpcUrls?.[0]?.http
-        : undefined;
-      if (!msgId || !mailbox || !rpcUrl) return null;
+      if (!msgId || !destination || !mailbox) return null;
       try {
-        return await readDelivery(rpcUrl, mailbox as Hex, msgId as Hex);
+        return await readDelivery(
+          multiProvider.getViemProvider(destination),
+          mailbox as Hex,
+          msgId as Hex,
+        );
       } catch (error) {
         logger.error('Failed to read message delivery status', error);
         return null;
@@ -88,11 +91,10 @@ export function useMessageDeliveryStatus(
  * the delivery, without the hash, and the hook polls again for it.
  */
 export async function readDelivery(
-  rpcUrl: string,
+  client: Pick<PublicClient, 'readContract' | 'getLogs'>,
   mailbox: Hex,
   msgId: Hex,
 ): Promise<Omit<MessageDeliveryResult, 'isLoading'>> {
-  const client = createPublicClient({ transport: http(rpcUrl) });
   const block = await client.readContract({
     address: mailbox,
     abi: mailboxAbi,
@@ -114,5 +116,9 @@ export async function readDelivery(
   } catch (error) {
     logger.warn('Delivered, but the ProcessId log could not be read yet', error);
   }
-  return { isDelivered: true, destinationTxHash, destinationBlockNumber: Number(blockNumber) };
+  return {
+    isDelivered: true,
+    destinationTxHash,
+    destinationBlockNumber: Number(blockNumber),
+  };
 }
