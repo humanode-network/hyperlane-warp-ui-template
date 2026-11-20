@@ -35,8 +35,7 @@ humanodetestnet5:
   displayNameShort: Humanode Testnet
   domainId: 14853
   isTestnet: true
-  # Humanode's logomark (vector, from the Humanode team).
-  logoURI: /logos/humanode.svg
+  logoURI: /logos/humanode.png
   name: humanodetestnet5
   nativeToken:
     decimals: 18
