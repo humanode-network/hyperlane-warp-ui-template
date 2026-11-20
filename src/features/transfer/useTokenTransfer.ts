@@ -258,9 +258,12 @@ async function executeTransfer({
           chainName: origin,
           activeChainName: activeChain.chainName,
         });
+        // Humanode bridge: keep the transfer hash before the receipt arrives. A reload before
+        // it otherwise marks the transfer failed with no hash to recheck it by.
         updateTransferStatus(
           transferIndex,
           (transferStatus = txCategoryToStatuses[tx.category][1]),
+          tx.category === WarpTxCategory.Transfer ? { originTxHash: hash } : undefined,
         );
         txReceipt = await confirm();
         const description = toTitleCase(tx.category);

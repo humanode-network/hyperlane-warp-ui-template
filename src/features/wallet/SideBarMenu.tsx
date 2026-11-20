@@ -14,6 +14,7 @@ import { formatTransferHistoryTimestamp } from '../../utils/date';
 import { logger } from '../../utils/logger';
 import { useMultiProvider } from '../chains/hooks';
 import { getChainDisplayName } from '../chains/utils';
+import { recheckStoredTransfers } from '../messages/recheckTransfers';
 import { MessageStatus } from '../messages/types';
 import {
   messageToTransferContext,
@@ -146,6 +147,11 @@ export function SideBarMenu({
   useEffect(() => {
     setIsMenuOpen(isOpen);
   }, [isOpen]);
+
+  // Humanode bridge: correct the stored history from chain each time the sidebar opens
+  useEffect(() => {
+    if (isOpen) void recheckStoredTransfers(multiProvider);
+  }, [isOpen, multiProvider]);
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -283,6 +289,8 @@ function TransferSummary({
   warpCore: ReturnType<typeof useWarpCore>;
   nowMs: number;
 }) {
+  // Humanode bridge: the store updates a transfer in place, so its status is a dependency too
+  const localStatus = item.type === TransferItemType.Local ? item.data.status : undefined;
   const { originChain, destChain, amount, destAmount, status, token, destToken, timestamp } =
     useMemo(() => {
       if (item.type === TransferItemType.Local) {
@@ -329,7 +337,8 @@ function TransferSummary({
         destToken,
         timestamp: msg.origin.timestamp,
       };
-    }, [item.type, item.data, multiProvider, warpCore]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- localStatus: see above
+    }, [item.type, item.data, localStatus, multiProvider, warpCore]);
 
   return (
     <button onClick={onClick} className={`${styles.btn} justify-between py-3`}>
