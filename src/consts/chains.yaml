@@ -18,3 +18,34 @@
 #   protocol: ethereum
 #   rpcUrls:
 #     - http: http://127.0.0.1:8555
+
+# Humanode bridge: Humanode testnet 5 (not in the registry), from humanode-network/hyperlane-deployment.
+# The bridge's Mailbox (chainAddresses.yaml) and routes (warpRoutes.yaml) are added once it is deployed.
+humanodetestnet5:
+  blocks:
+    confirmations: 1
+    estimateBlockTime: 6
+    reorgPeriod: finalized
+  chainId: 14853
+  contractsVariant: paris
+  deployer:
+    name: Humanode
+    url: https://humanode.io
+  displayName: Humanode Testnet 5
+  displayNameShort: Humanode Testnet
+  domainId: 14853
+  isTestnet: true
+  # Humanode's logo, as in humanode-network/polkadot-js-apps (apps-config/src/ui/logos/nodes/humanode.png).
+  logoURI: /logos/humanode.png
+  name: humanodetestnet5
+  nativeToken:
+    decimals: 18
+    name: Humanode
+    # The EVM-side native token on Humanode is eHMND; HMND is its bridged form on Base.
+    symbol: eHMND
+  protocol: ethereum
+  rpcUrls:
+    - http: https://explorer-rpc-http.testnet5.stages.humanode.io
+  technicalStack: polkadotsubstrate
+  transactionOverrides:
+    gasPrice: '715000000000000'
