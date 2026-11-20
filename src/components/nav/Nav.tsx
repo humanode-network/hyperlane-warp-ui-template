@@ -7,7 +7,6 @@ import { links } from '../../consts/links';
 import { Color } from '../../styles/Color';
 import { BookIcon } from '../icons/BookIcon';
 import { QuestionMarkIcon } from '../icons/QuestionMarkIcon';
-import { StakeIcon } from '../icons/StakeIcon';
 import { WebSimpleIcon } from '../icons/WebSimpleIcon';
 import { XIcon } from '../icons/XIcon';
 
@@ -18,9 +17,8 @@ interface NavLinkItem {
 }
 
 export const navLinks: NavLinkItem[] = [
-  { title: 'Stake', url: links.stake, icon: <StakeIcon width={20} height={20} /> },
   { title: 'X.com', url: links.twitter, icon: <XIcon width={19} height={17} /> },
-  { title: 'Hyperlane', url: links.home, icon: <WebSimpleIcon width={20} height={20} /> },
+  { title: 'Humanode', url: links.home, icon: <WebSimpleIcon width={20} height={20} /> },
   {
     title: 'Support',
     url: links.support,

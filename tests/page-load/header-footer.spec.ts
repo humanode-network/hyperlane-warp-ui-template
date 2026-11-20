@@ -11,9 +11,8 @@ test.describe('Page Load - Header and Footer', () => {
 
     // Footer links
     const footer = page.getByRole('contentinfo');
-    await expect(footer.getByRole('link', { name: 'Stake' })).toBeVisible();
     await expect(footer.getByRole('link', { name: 'X.com' })).toBeVisible();
-    await expect(footer.getByRole('link', { name: 'Hyperlane' })).toBeVisible();
+    await expect(footer.getByRole('link', { name: 'Humanode' })).toBeVisible();
     await expect(footer.getByRole('link', { name: 'Support' })).toBeVisible();
     await expect(footer.getByRole('link', { name: 'Docs' })).toBeVisible();
     await expect(footer.getByRole('link', { name: 'Github' })).toBeVisible();
