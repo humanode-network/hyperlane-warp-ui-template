@@ -3,7 +3,6 @@ import { MOCK_EVM_ADDRESS } from '../helpers/constants';
 import { installEvmRpcMock } from '../helpers/evmRpc';
 import { enterAmount } from '../helpers/formFlow';
 import { openE2EApp } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 const USDC_ETHEREUM = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
 const APPROVE_SELECTOR = '0x095ea7b3';
@@ -19,7 +18,6 @@ const TRANSFER_REMOTE_SELECTORS = [
 test.describe('EVM approval flow', () => {
   test.setTimeout(180_000);
   test('low allowance forces approve() as the first captured tx', async ({ page }) => {
-    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist (bridge version: e2e-wallet/bridge/approval.spec.ts)');
     const { txs } = await installEvmRpcMock(page, {
       chainUrlMap: [
         { chainId: 8453, urlMatch: /base\.drpc|base\.org|base-mainnet|base\.publicnode|base\.llamarpc|basescan|base\.blockpi|base\.meowrpc/i },

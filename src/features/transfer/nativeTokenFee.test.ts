@@ -53,6 +53,31 @@ describe('quoteTransferRemoteGas with the 0.3% LinearFee', () => {
     expect(quote.tokenFeeQuote).toEqual({ addressOrDenom: ZERO, amount: FEE });
   });
 
+  test('native HMND: the value sent stays amount + fee + IGP', async () => {
+    const adapter = stub(
+      new EvmHypNativeAdapter('humanodetestnet5', multiProvider, { token: ROUTER }),
+      [
+        [ZERO, IGP],
+        [ZERO, AMOUNT + FEE],
+        [ZERO, 0n],
+      ],
+    );
+    adapter.contract.populateTransaction = {
+      'transferRemote(uint32,bytes32,uint256)': async (
+        _d: unknown,
+        _r: unknown,
+        _a: unknown,
+        o: any,
+      ) => o,
+    };
+    const tx = await adapter.populateTransferRemoteTx({
+      weiAmountOrId: AMOUNT.toString(),
+      destination: 84532,
+      recipient: RECIPIENT,
+    });
+    expect(BigInt(tx.value)).toBe(AMOUNT + FEE + IGP);
+  });
+
   test('synthetic ERC20 route: unchanged, fee in the router token', async () => {
     const adapter = stub(
       new EvmHypSyntheticAdapter('humanodetestnet5', multiProvider, { token: ROUTER }),

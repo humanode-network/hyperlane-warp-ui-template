@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import { openE2EApp } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 async function openOriginAndSearch(page: import('@playwright/test').Page, query: string) {
   await page.getByTestId('token-select-origin').click();
@@ -10,7 +9,6 @@ async function openOriginAndSearch(page: import('@playwright/test').Page, query:
 
 test.describe('Cosmos same-symbol dedup', () => {
   test('celestia TIA vs stride TIA resolve to distinct destination routes', async ({ page }) => {
-    test.skip(onlyCustomRoutes, 'no Cosmos routes: the bridge routes are EVM-only');
     await openE2EApp(page);
 
     // Origin = TIA on celestia. The published registry exposes

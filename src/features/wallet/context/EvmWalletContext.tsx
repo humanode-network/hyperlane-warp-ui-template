@@ -5,9 +5,7 @@ import { RainbowKitProvider, connectorsForWallets, lightTheme } from '@rainbow-m
 import '@rainbow-me/rainbowkit/styles.css';
 import {
   argentWallet,
-  binanceWallet,
   coinbaseWallet,
-  injectedWallet,
   ledgerWallet,
   metaMaskWallet,
   rainbowWallet,
@@ -33,11 +31,17 @@ function initWagmi(multiProvider: MultiProtocolProvider, e2e: boolean) {
     [
       {
         groupName: 'Recommended',
-        wallets: [metaMaskWallet, injectedWallet, walletConnectWallet, ledgerWallet],
+        // No injectedWallet either: it has the same window.ethereum fallback. EIP-6963 lists the
+        // installed wallets.
+        wallets: [metaMaskWallet, walletConnectWallet, ledgerWallet],
       },
       {
         groupName: 'More',
-        wallets: [binanceWallet, coinbaseWallet, rainbowWallet, trustWallet, argentWallet],
+        // Humanode bridge: no binanceWallet. With the Binance extension installed and another
+        // wallet (e.g. Rabby) owning window.ethereum, RainbowKit's Binance connector falls back to
+        // window.ethereum, wraps that other wallet's provider and takes over its connection
+        // ("Binance Wallet" shown after connecting Rabby). EIP-6963 still lists Binance Wallet.
+        wallets: [coinbaseWallet, rainbowWallet, trustWallet, argentWallet],
       },
     ],
     { appName: APP_NAME, projectId: config.walletConnectProjectId },

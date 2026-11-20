@@ -57,7 +57,7 @@ export const config: Config = Object.freeze({
   registryUrl,
   registryBranch,
   registryProxyUrl,
-  showTipBox: true,
+  showTipBox: false, // Humanode bridge: hide the template's "Fork this template" tip card
   version,
   transferBlacklist,
   walletConnectProjectId,

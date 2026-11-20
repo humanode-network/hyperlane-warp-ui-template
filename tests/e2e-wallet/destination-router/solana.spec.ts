@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { selectDestinationToken, selectOriginToken } from '../helpers/formFlow';
 import { openE2EApp, waitForWarpRuntime } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 // Registry-defined warp route endpoints for solanamainnet USDC. Hard-coded
 // so a drift in upstream addresses fails the test loudly rather than
@@ -22,7 +21,6 @@ test.describe('Solana destination router identity', () => {
   test('solanamainnet USDC Token.connections resolve to the expected chain-scoped routers', async ({
     page,
   }) => {
-    test.skip(onlyCustomRoutes, 'no Solana routes: the bridge routes are EVM-only');
     await openE2EApp(page);
     await waitForWarpRuntime(page);
 
@@ -68,7 +66,6 @@ test.describe('Solana destination router identity', () => {
   test('picking solanamainnet USDC → eclipsemainnet USDC leaves both chain labels pinned', async ({
     page,
   }) => {
-    test.skip(onlyCustomRoutes, 'no Solana routes: the bridge routes are EVM-only');
     await openE2EApp(page);
     await waitForWarpRuntime(page);
 
