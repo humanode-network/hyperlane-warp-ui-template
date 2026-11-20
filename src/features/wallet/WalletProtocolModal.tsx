@@ -2,6 +2,7 @@ import { ProtocolType } from '@hyperlane-xyz/utils';
 import { Modal, PROTOCOL_TO_LOGO } from '@hyperlane-xyz/widgets';
 import { useConnectFns } from '@hyperlane-xyz/widgets/walletIntegrations/multiProtocol';
 import clsx from 'clsx';
+import { useEffect } from 'react';
 
 import { logger } from '../../utils/logger';
 
@@ -48,6 +49,14 @@ export function WalletProtocolModal({
   };
 
   const includesProtocol = (protocol: ProtocolType) => !protocols || protocols.includes(protocol);
+
+  // With a single protocol configured there is nothing to choose: go straight to its wallets.
+  const onlyProtocol = protocols?.length === 1 ? protocols[0] : undefined;
+  useEffect(() => {
+    if (isOpen && onlyProtocol) onClickProtocol(onlyProtocol);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run when the modal opens
+  }, [isOpen, onlyProtocol]);
+  if (onlyProtocol) return null;
 
   return (
     <Modal
