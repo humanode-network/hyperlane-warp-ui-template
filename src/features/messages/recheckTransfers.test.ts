@@ -166,9 +166,19 @@ describe('recheckStoredTransfers', () => {
     delivered();
     origin.getTransactionReceipt.mockImplementation(async () => {
       useStore.setState({ transfers: [transfer({ status: TransferStatus.ConfirmedTransfer })] });
-      return { status: 'reverted', logs: [] };
+      return { status: 'success', blockNumber: 100n, logs: [dispatchLog(ORIGIN_MAILBOX)] };
     });
     await recheckStoredTransfers(multiProvider);
-    expect(useStore.getState().transfers[0].status).toBe(TransferStatus.ConfirmedTransfer);
+    const [stored] = useStore.getState().transfers;
+    expect(stored.status).toBe(TransferStatus.ConfirmedTransfer);
+    expect(stored.msgId).toBeUndefined();
+  });
+
+  test('leaves a reverted transfer as it is', async () => {
+    useStore.setState({ transfers: [transfer({})] });
+    const before = useStore.getState().transfers;
+    origin.getTransactionReceipt.mockResolvedValue({ status: 'reverted', logs: [] });
+    await recheckStoredTransfers(multiProvider);
+    expect(useStore.getState().transfers).toBe(before);
   });
 });
