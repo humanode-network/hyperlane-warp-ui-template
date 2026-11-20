@@ -1,7 +1,7 @@
 import { ethereum } from '@hyperlane-xyz/registry';
 import { useEthereumAccount } from '@hyperlane-xyz/widgets/walletIntegrations/ethereum';
 import { useQuery } from '@tanstack/react-query';
-import { createPublicClient, http, isAddress } from 'viem';
+import { createPublicClient, fallback, http, isAddress } from 'viem';
 
 import { useMultiProvider } from '../../chains/hooks';
 
@@ -32,7 +32,7 @@ const ORACLE_ADDRESS = '0x40C57923924B5c5c5455c48D93317139ADDaC8fb';
 // The oracle lives on Ethereum. It is read over Ethereum's RPC from the registry, not through
 // wagmi: wagmi only knows the chains of the app's routes, and Ethereum is not one of them for
 // the Humanode bridge (a wagmi read on chain 1 failed and counted as "not sanctioned").
-const ethereumRpcUrl = ethereum.rpcUrls[0].http;
+const ethereumTransport = fallback(ethereum.rpcUrls.map((rpc) => http(rpc.http)));
 
 export function useIsAccountChainalysisSanctioned() {
   const multiProvider = useMultiProvider();
@@ -48,7 +48,7 @@ export function useIsAccountChainalysisSanctioned() {
 }
 
 export function readChainalysisSanctioned(address: `0x${string}`): Promise<boolean> {
-  return createPublicClient({ transport: http(ethereumRpcUrl) }).readContract({
+  return createPublicClient({ transport: ethereumTransport }).readContract({
     abi: ORACLE_ABI,
     functionName: 'isSanctioned',
     args: [address],
