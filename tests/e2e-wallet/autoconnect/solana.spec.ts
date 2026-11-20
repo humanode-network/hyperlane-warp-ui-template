@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { selectOriginToken } from '../helpers/formFlow';
 import { openE2EApp } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 // Deterministic Keypair.fromSeed(0xe2... ×32).publicKey shortened via
 // shortenAddress() → "EY4LF...nwGi". Hard-coded so the assertion fails loudly
@@ -10,7 +9,6 @@ const MOCK_SOLANA_SHORT = 'EY4LF...nwGi';
 
 test.describe('Solana mock adapter: auto-connect', () => {
   test('connects to MockSolanaAdapter and renders the shortened pubkey', async ({ page }) => {
-    test.skip(onlyCustomRoutes, 'no Solana routes: the bridge routes are EVM-only');
     await openE2EApp(page);
 
     // Switch origin to a Solana chain so the Solana wallet dropdown renders.

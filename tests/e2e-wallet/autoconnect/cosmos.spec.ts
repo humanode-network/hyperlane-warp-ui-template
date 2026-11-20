@@ -1,10 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { openE2EApp } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 test.describe('Cosmos mock wallet: auto-connect', () => {
   test('connects to MockCosmosWallet and renders a shortened celestia bech32', async ({ page }) => {
-    test.skip(onlyCustomRoutes, 'no Cosmos routes: the bridge routes are EVM-only');
     await openE2EApp(page);
 
     // Switch origin to a Cosmos-origin warp route (TIA on celestia). TIA is

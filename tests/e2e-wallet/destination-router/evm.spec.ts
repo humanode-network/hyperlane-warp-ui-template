@@ -3,7 +3,6 @@ import { MOCK_EVM_ADDRESS } from '../helpers/constants';
 import { installEvmRpcMock, ROUTER_COLLATERAL_SEED } from '../helpers/evmRpc';
 import { clickContinue, enterAmount, selectDestinationToken } from '../helpers/formFlow';
 import { openE2EApp, waitForWarpRuntime } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 const USDC_ETHEREUM = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
 const REMOTE_ADDRESS_RE = /0x[0-9a-fA-F]{40}/;
@@ -52,7 +51,6 @@ test.describe('EVM destination router selection', () => {
   test('Base and Arbitrum destinations resolve distinct non-empty remote-token addresses', async ({
     page,
   }) => {
-    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     test.setTimeout(180_000);
     await installEvmRpcMock(page, rpcConfig);
     await openE2EApp(page);

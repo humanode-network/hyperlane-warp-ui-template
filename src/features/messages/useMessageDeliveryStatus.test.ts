@@ -1,14 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import { readDelivery } from './useMessageDeliveryStatus';
+
 const readContract = vi.fn();
 const getLogs = vi.fn();
 
-vi.mock('viem', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('viem')>();
-  return { ...actual, createPublicClient: () => ({ readContract, getLogs }) };
-});
-
-const { readDelivery } = await import('./useMessageDeliveryStatus');
+const client = { readContract, getLogs } as unknown as Parameters<typeof readDelivery>[0];
 
 const MAILBOX = '0x1111111111111111111111111111111111111111';
 const MSG_ID = '0x2222222222222222222222222222222222222222222222222222222222222222';
@@ -22,20 +19,26 @@ describe('readDelivery', () => {
 
   test('undelivered: processedAt is 0, no log query', async () => {
     readContract.mockResolvedValue(0);
-    expect(await readDelivery('http://rpc', MAILBOX, MSG_ID)).toEqual({ isDelivered: false });
+    expect(await readDelivery(client, MAILBOX, MSG_ID)).toEqual({
+      isDelivered: false,
+    });
     expect(getLogs).not.toHaveBeenCalled();
   });
 
   test('delivered: reads ProcessId in the one delivery block', async () => {
     readContract.mockResolvedValue(1234567);
     getLogs.mockResolvedValue([{ transactionHash: DEST_TX }]);
-    expect(await readDelivery('http://rpc', MAILBOX, MSG_ID)).toEqual({
+    expect(await readDelivery(client, MAILBOX, MSG_ID)).toEqual({
       isDelivered: true,
       destinationTxHash: DEST_TX,
       destinationBlockNumber: 1234567,
     });
     expect(readContract).toHaveBeenCalledWith(
-      expect.objectContaining({ address: MAILBOX, functionName: 'processedAt', args: [MSG_ID] }),
+      expect.objectContaining({
+        address: MAILBOX,
+        functionName: 'processedAt',
+        args: [MSG_ID],
+      }),
     );
     expect(getLogs).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -50,7 +53,7 @@ describe('readDelivery', () => {
   test('delivered but the log read fails: delivered, no hash, block kept', async () => {
     readContract.mockResolvedValue(1234567);
     getLogs.mockRejectedValue(new Error('rpc down'));
-    expect(await readDelivery('http://rpc', MAILBOX, MSG_ID)).toEqual({
+    expect(await readDelivery(client, MAILBOX, MSG_ID)).toEqual({
       isDelivered: true,
       destinationTxHash: undefined,
       destinationBlockNumber: 1234567,
@@ -60,7 +63,7 @@ describe('readDelivery', () => {
   test('delivered but no log returned: delivered, no hash', async () => {
     readContract.mockResolvedValue(1234567);
     getLogs.mockResolvedValue([]);
-    const result = await readDelivery('http://rpc', MAILBOX, MSG_ID);
+    const result = await readDelivery(client, MAILBOX, MSG_ID);
     expect(result.isDelivered).toBe(true);
     expect(result.destinationTxHash).toBeUndefined();
   });
