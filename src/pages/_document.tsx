@@ -28,7 +28,7 @@ export default function Document() {
         <meta property="og:url" content={APP_URL} />
         <meta property="og:title" content={APP_NAME} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={`${APP_URL}/logo.png`} />
+        <meta property="og:image" content={`${APP_URL}/logos/humanode.png`} />
         <meta property="og:description" content={APP_DESCRIPTION} />
         {/* Synchronous same-origin script — blocks rendering to set theme before first paint.
             Inline version would be blocked by CSP (no unsafe-inline in script-src). */}
