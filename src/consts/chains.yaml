@@ -35,8 +35,8 @@ humanodetestnet5:
   displayNameShort: Humanode Testnet
   domainId: 14853
   isTestnet: true
-  # Humanode's logo, as in humanode-network/polkadot-js-apps (apps-config/src/ui/logos/nodes/humanode.png).
-  logoURI: /logos/humanode.png
+  # Humanode's logomark (vector, from the Humanode team).
+  logoURI: /logos/humanode.svg
   name: humanodetestnet5
   nativeToken:
     decimals: 18
