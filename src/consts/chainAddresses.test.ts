@@ -11,7 +11,7 @@ const read = (file: string) => parse(readFileSync(join(__dirname, file), 'utf8')
 // added once the bridge is deployed; with no routes there is nothing to check.
 test('every chain of the bridge routes has our Mailbox', () => {
   const routes = read('warpRoutes.yaml');
-  const addresses = read('chainAddresses.yaml');
+  const addresses = read('chainAddresses.yaml') ?? {};
   const chains = new Set<string>(routes.tokens.map((t: { chainName: string }) => t.chainName));
   for (const chain of chains) {
     expect(addresses[chain]?.mailbox, chain).toMatch(/^0x[0-9a-fA-F]{40}$/);
