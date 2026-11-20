@@ -69,17 +69,8 @@ export async function recheckTransfer(
   };
 }
 
-let running: Promise<void> | null = null;
-
 /** Rechecks the stored failed and sent EVM transfers that have an origin tx hash. */
-export function recheckStoredTransfers(multiProvider: MultiProtocolProvider): Promise<void> {
-  running ??= recheckAll(multiProvider).finally(() => {
-    running = null;
-  });
-  return running;
-}
-
-async function recheckAll(multiProvider: MultiProtocolProvider) {
+export async function recheckStoredTransfers(multiProvider: MultiProtocolProvider) {
   const { transfers, chainAddresses } = useStore.getState();
   for (const [index, transfer] of transfers.entries()) {
     const { origin, destination, originTxHash, status } = transfer;
@@ -108,10 +99,12 @@ async function recheckAll(multiProvider: MultiProtocolProvider) {
       logger.warn('Failed to recheck the transfer', originTxHash, error);
       continue;
     }
-    // Write only if the transfer did not change meanwhile (e.g. the open modal marked it delivered)
+    // Write only if the transfer did not change meanwhile: the open modal or another recheck
+    // may have updated it
     const { transfers: current, updateTransferStatus } = useStore.getState();
     const now = current[index];
     if (!result || now?.originTxHash !== originTxHash || now.status !== status) continue;
-    if (result.status !== status || !now.msgId) updateTransferStatus(index, result.status, result);
+    if (result.status !== status || (result.msgId && !now.msgId))
+      updateTransferStatus(index, result.status, result);
   }
 }
