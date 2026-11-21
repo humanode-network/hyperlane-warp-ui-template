@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import { openE2EApp } from '../helpers/page-setup';
-import { onlyCustomRoutes } from '../../helpers/constants';
 
 // MOCK_RADIX_ADDRESS from src/features/wallet/_e2e/E2EAutoConnectRadix.tsx.
 // Deterministic, never broadcasted.
@@ -23,7 +22,6 @@ test.describe('Radix mock wallet: auto-connect', () => {
   test('selecting a Radix-origin token flips origin WalletDropdown off "Connect Wallet"', async ({
     page,
   }) => {
-    test.skip(onlyCustomRoutes, 'no Radix routes: the bridge routes are EVM-only');
     await openE2EApp(page);
 
     await page.getByTestId('token-select-origin').click();
