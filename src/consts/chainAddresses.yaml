@@ -16,3 +16,11 @@
 # anvil2:
 #   mailbox: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788'
 #   quotedCalls: '0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE'
+
+# Humanode bridge: its own Mailbox on each chain (Base Sepolia's registry Mailbox is not ours).
+# Official testnet core, from humanode-network/hyperlane-deployment,
+# deployments/testnet/registry/chains/*/addresses.yaml.
+humanodetestnet5:
+  mailbox: '0x3A299f4982c3B807945204288cA53FDCE9C71E58'
+basesepolia:
+  mailbox: '0x3A299f4982c3B807945204288cA53FDCE9C71E58'
