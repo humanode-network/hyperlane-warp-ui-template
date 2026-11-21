@@ -87,8 +87,8 @@ export function useMessageDeliveryStatus(
 
 /**
  * Mailbox.processedAt(msgId) gives the delivery block (0 while undelivered); the ProcessId log
- * in that one block gives the delivery transaction. A failed or empty log read still reports
- * the delivery, without the hash, and the hook polls again for it.
+ * in that one block gives the delivery transaction. A failed read throws, and the hook polls
+ * again.
  */
 export async function readDelivery(
   client: Pick<PublicClient, 'readContract' | 'getLogs'>,
@@ -103,22 +103,16 @@ export async function readDelivery(
   });
   if (!block) return { isDelivered: false };
   const blockNumber = BigInt(block);
-  let destinationTxHash: string | undefined;
-  try {
-    const logs = await client.getLogs({
-      address: mailbox,
-      event: processIdEvent,
-      args: { messageId: msgId },
-      fromBlock: blockNumber,
-      toBlock: blockNumber,
-    });
-    destinationTxHash = logs[0]?.transactionHash;
-  } catch (error) {
-    logger.warn('Delivered, but the ProcessId log could not be read yet', error);
-  }
+  const logs = await client.getLogs({
+    address: mailbox,
+    event: processIdEvent,
+    args: { messageId: msgId },
+    fromBlock: blockNumber,
+    toBlock: blockNumber,
+  });
   return {
     isDelivered: true,
-    destinationTxHash,
+    destinationTxHash: logs[0]?.transactionHash,
     destinationBlockNumber: Number(blockNumber),
   };
 }
