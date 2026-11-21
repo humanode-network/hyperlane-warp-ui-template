@@ -45,7 +45,8 @@ const BLOCKED_REGIONS = [
 ];
 
 export function proxy(req: NextRequest) {
-  const { country, region } = geolocation(req);
+  // countryRegion is the region within the country; region is Vercel's data center
+  const { country, countryRegion: region } = geolocation(req);
 
   if (country && BLOCKED_COUNTRIES.includes(country)) {
     return NextResponse.redirect(new URL('/blocked', req.url));
