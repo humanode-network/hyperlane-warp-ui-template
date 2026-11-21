@@ -38,5 +38,6 @@ export interface TransferContext {
   originBlockNumber?: number;
   msgId?: string;
   destinationTxHash?: string;
+  destinationBlockNumber?: number;
   timestamp: number;
 }

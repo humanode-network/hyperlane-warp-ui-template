@@ -15,7 +15,7 @@ import {
   useWalletDetails,
 } from '@hyperlane-xyz/widgets/walletIntegrations/multiProtocol';
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChainLogo } from '../../components/icons/ChainLogo';
 import { ModalHeader } from '../../components/layout/ModalHeader';
@@ -100,6 +100,7 @@ export function TransfersDetailsModal({
 
   const delivery = useMessageDeliveryStatus(
     shouldTrackDelivery ? msgId : undefined,
+    destination,
     isOpen,
     multiProvider,
   );
@@ -164,30 +165,26 @@ export function TransfersDetailsModal({
       ? MessageStatus.Failing
       : MessageStatus.Pending;
 
-  // Reset delivery tracking when viewing a different transfer
-  const hasUpdatedDelivery = useRef(false);
-  useEffect(() => {
-    hasUpdatedDelivery.current = false;
-  }, [msgId]);
-
-  // Update store when delivery is confirmed
+  // Update store when delivery is confirmed, and again if the delivery tx hash arrives later
   useEffect(() => {
     if (
       delivery.isDelivered &&
-      !hasUpdatedDelivery.current &&
-      status !== TransferStatus.Delivered &&
+      (status !== TransferStatus.Delivered ||
+        (!storedDestTxHash && !!delivery.destinationTxHash)) &&
       transferIndex >= 0
     ) {
-      hasUpdatedDelivery.current = true;
       updateTransferStatus(transferIndex, TransferStatus.Delivered, {
         destinationTxHash: delivery.destinationTxHash,
+        destinationBlockNumber: delivery.destinationBlockNumber,
       });
     }
   }, [
     delivery.isDelivered,
     delivery.destinationTxHash,
+    delivery.destinationBlockNumber,
     transferIndex,
     status,
+    storedDestTxHash,
     updateTransferStatus,
   ]);
 
