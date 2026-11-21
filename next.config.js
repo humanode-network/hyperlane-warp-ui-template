@@ -20,7 +20,6 @@ const STYLE_SRC_HOSTS = ['https://js.refiner.io', 'https://storage.refiner.io'];
 const IMG_SRC_HOSTS = [
   'https://*.walletconnect.com',
   'https://*.githubusercontent.com',
-  'https://cdn.jsdelivr.net/gh/hyperlane-xyz/hyperlane-registry@main/',
   'https://js.refiner.io',
   'https://storage.refiner.io',
   'https://js.intercomcdn.com',

@@ -14,7 +14,9 @@ export const links = {
   privacyPolicy: 'https://hyperlane.xyz/privacy-policy',
   bounty:
     'https://github.com/search?q=org:hyperlane-xyz+label:bounty+is:open+is:issue&type=issues&s=&o=desc',
-  imgPath: 'https://cdn.jsdelivr.net/gh/hyperlane-xyz/hyperlane-registry@main',
+  // Humanode bridge: registry logos of the bridge's chains and tokens are copied into public/ at
+  // their registry paths, so visitors' browsers don't fetch them from jsDelivr.
+  imgPath: '',
   transferFees: 'https://docs.hyperlane.xyz/docs/protocol/core/fees#fee-estimation',
   stake: 'https://app.symbiotic.fi/vault/0xE1F23869776c82f691d9Cb34597Ab1830Fb0De58',
   support: 'https://link.humanode.io/chat', // Humanode Discord
