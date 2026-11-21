@@ -50,14 +50,10 @@ describe('readDelivery', () => {
     );
   });
 
-  test('delivered but the log read fails: delivered, no hash, block kept', async () => {
+  test('delivered but the log read fails: throws, the hook polls again', async () => {
     readContract.mockResolvedValue(1234567);
     getLogs.mockRejectedValue(new Error('rpc down'));
-    expect(await readDelivery(client, MAILBOX, MSG_ID)).toEqual({
-      isDelivered: true,
-      destinationTxHash: undefined,
-      destinationBlockNumber: 1234567,
-    });
+    await expect(readDelivery(client, MAILBOX, MSG_ID)).rejects.toThrow('rpc down');
   });
 
   test('delivered but no log returned: delivered, no hash', async () => {
