@@ -2,7 +2,6 @@ import { useIsSsr } from '@hyperlane-xyz/widgets';
 
 import '@hyperlane-xyz/widgets/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Analytics } from '@vercel/analytics/react';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -82,7 +81,6 @@ export default function App({ Component, pageProps }: AppProps) {
   ) : (
     <AppLayout>
       <Component {...pageProps} />
-      <Analytics />
     </AppLayout>
   );
 
