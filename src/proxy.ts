@@ -8,6 +8,7 @@ export const config = {
 
 const BLOCKED_COUNTRIES = [
   'CU', // Cuba
+  'IR', // Iran
   'KP', // North Korea
   'RU', // Russia
   'AF', // Afghanistan
@@ -38,8 +39,11 @@ const BLOCKED_REGIONS = [
     country: 'UA', // Ukraine
     regions: [
       '43', // Crimea
+      '40', // Sevastopol
       '14', // Donetsk
       '09', // Luhansk
+      '23', // Zaporizhzhia
+      '65', // Kherson
     ],
   },
 ];

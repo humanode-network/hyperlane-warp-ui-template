@@ -13,6 +13,16 @@ describe('proxy geoblock', () => {
     expect(blocked({ 'x-vercel-ip-country': 'CU' })).toBe(true);
   });
 
+  test.each(['CU', 'IR', 'KP', 'SY', 'RU', 'BY'])('blocks %s', (country) => {
+    expect(blocked({ 'x-vercel-ip-country': country })).toBe(true);
+  });
+
+  test.each(['43', '40', '14', '09', '23', '65'])('blocks Ukrainian region %s', (region) => {
+    expect(blocked({ 'x-vercel-ip-country': 'UA', 'x-vercel-ip-country-region': region })).toBe(
+      true,
+    );
+  });
+
   test('lets other countries through', () => {
     expect(blocked({ 'x-vercel-ip-country': 'DE' })).toBe(false);
   });
