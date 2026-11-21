@@ -11,7 +11,7 @@ function SupportLink() {
   return (
     <a href={links.support} target="_blank" rel="noopener noreferrer" className="mt-5 text-sm">
       For support, visit the{' '}
-      <span className="underline underline-offset-2">Hyperlane Help Center</span>{' '}
+      <span className="underline underline-offset-2">Humanode Discord</span>{' '}
     </a>
   );
 }
