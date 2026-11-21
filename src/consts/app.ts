@@ -2,9 +2,10 @@ import { Color } from '../styles/Color';
 
 export type UiThemeMode = 'light' | 'dark';
 
-export const APP_NAME = 'Hyperlane Warp UI Template';
-export const APP_DESCRIPTION = 'A DApp for Hyperlane Warp Route transfers';
-export const APP_URL = 'hyperlane-warp-template.vercel.app';
+export const APP_NAME = 'Humanode Bridge';
+export const APP_DESCRIPTION = 'Bridge eHMND and USDC between Humanode and Base';
+// The site's public https origin, for link previews (og:url, og:image); set at build time.
+export const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
 export const BRAND_COLOR = Color.primary['500'];
 
 export const UI_THEME_STORAGE_KEY = 'warp-ui-theme';

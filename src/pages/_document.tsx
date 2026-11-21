@@ -25,10 +25,11 @@ export default function Document() {
         <meta name="apple-mobile-web-app-title" content={APP_NAME} />
         <meta name="mobile-web-app-capable" content="yes" />
 
-        <meta property="og:url" content={APP_URL} />
+        {APP_URL && <meta property="og:url" content={APP_URL} />}
         <meta property="og:title" content={APP_NAME} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={`${APP_URL}/logo.png`} />
+        {/* Link previews need an absolute image URL, hence no og:image without APP_URL */}
+        {APP_URL && <meta property="og:image" content={`${APP_URL}/logos/humanode.png`} />}
         <meta property="og:description" content={APP_DESCRIPTION} />
         {/* Synchronous same-origin script — blocks rendering to set theme before first paint.
             Inline version would be blocked by CSP (no unsafe-inline in script-src). */}
