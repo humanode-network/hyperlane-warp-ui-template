@@ -30,6 +30,7 @@ interface Config {
   registryUrl: string | undefined; // Optional URL to use a custom registry instead of the published canonical version
   registryBranch?: string | undefined; // Optional customization of the registry branch instead of main
   registryProxyUrl?: string; // Optional URL to use a custom proxy for the GithubRegistry
+  registryFromPackage: boolean; // Read the registry bundled in the build (@hyperlane-xyz/registry) instead of fetching it at runtime
   showTipBox: boolean; // Show/Hide the blue tip box above the transfer form
   shouldDisableChains: boolean; // Enable chain disabling for ChainSearchMenu. When true it will deactivate chains that have disabled status
   transferBlacklist: string; // comma-separated list of routes between which transfers are disabled. Expects Caip2Id-Caip2Id (e.g. ethereum:1-sealevel:1399811149)
@@ -57,6 +58,9 @@ export const config: Config = Object.freeze({
   registryUrl,
   registryBranch,
   registryProxyUrl,
+  // Humanode bridge: its routes and chains are in this repo's yaml files; the rest comes from the
+  // registry bundled in the build, so visitors' browsers don't fetch it from GitHub and Hyperlane's proxy.
+  registryFromPackage: true,
   showTipBox: true,
   version,
   transferBlacklist,

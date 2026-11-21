@@ -301,6 +301,13 @@ export const useStore = create<AppState>()(
   ),
 );
 
+// The registry bundled in the build. Lazy-loaded so the published constants stay out of the
+// initial bundle.
+async function loadPackagedRegistry(): Promise<IRegistry> {
+  const { chainAddresses, chainMetadata } = await import('@hyperlane-xyz/registry');
+  return new PartialRegistry({ chainAddresses, chainMetadata });
+}
+
 async function initWarpContext({
   registry,
   chainMetadataOverrides,
@@ -311,20 +318,19 @@ async function initWarpContext({
   warpCoreConfigOverrides: WarpCoreConfig[];
 }): Promise<WarpContext> {
   let currentRegistry = registry;
-  try {
-    // Pre-load registry content to avoid repeated requests
-    await currentRegistry.listRegistryContent();
-  } catch (error) {
-    // Lazy-load the published constants so they stay out of the initial bundle
-    const { chainAddresses, chainMetadata } = await import('@hyperlane-xyz/registry');
-    currentRegistry = new PartialRegistry({
-      chainAddresses,
-      chainMetadata,
-    });
-    logger.warn(
-      'Failed to list registry content using GithubRegistry, will continue with PartialRegistry.',
-      error,
-    );
+  if (config.registryFromPackage) {
+    currentRegistry = await loadPackagedRegistry();
+  } else {
+    try {
+      // Pre-load registry content to avoid repeated requests
+      await currentRegistry.listRegistryContent();
+    } catch (error) {
+      currentRegistry = await loadPackagedRegistry();
+      logger.warn(
+        'Failed to list registry content using GithubRegistry, will continue with PartialRegistry.',
+        error,
+      );
+    }
   }
 
   try {
