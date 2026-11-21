@@ -1,0 +1,47 @@
+diff --git a/dist/token/adapters/EvmTokenAdapter.js b/dist/token/adapters/EvmTokenAdapter.js
+index 8a8945b003ec57ba7e19ae624e92596865514fb2..9113a1b30f61e51f794d3fda4ecdfdd61449a7fe 100644
+--- a/dist/token/adapters/EvmTokenAdapter.js
++++ b/dist/token/adapters/EvmTokenAdapter.js
+@@ -261,9 +261,16 @@ export class EvmHypSyntheticAdapter extends EvmTokenAdapter {
+             amount: BigInt(q[1].toString()) - (i === 1 ? amount : 0n),
+         }));
+         // Native fees (denom == address(0)) → msg.value sent with transferRemote.
++        // Native-route warp fee (index 1 in address(0)) is reported separately as a
++        // tokenFeeQuote with the zero address (WarpCore/adapters add it back to msg.value),
++        // instead of being folded into the IGP quote. Skipped if an ERC20 fee also exists.
++        const hasErc20Fee = feeQuotes.some((q) => !isZeroishAddress(q.addressOrDenom) && q.amount > 0n);
++        const nativeWarpFee = !hasErc20Fee && feeQuotes[1] && isZeroishAddress(feeQuotes[1].addressOrDenom)
++            ? feeQuotes[1].amount
++            : 0n;
+         const nativeAmount = feeQuotes
+             .filter((q) => isZeroishAddress(q.addressOrDenom))
+-            .reduce((sum, q) => sum + q.amount, 0n);
++            .reduce((sum, q) => sum + q.amount, 0n) - nativeWarpFee;
+         // ERC20 fees → must be approved before transferRemote.
+         const erc20Quotes = feeQuotes.filter((q) => !isZeroishAddress(q.addressOrDenom));
+         const erc20Denoms = new Set(erc20Quotes.map((q) => q.addressOrDenom.toLowerCase()));
+@@ -274,7 +281,9 @@ export class EvmHypSyntheticAdapter extends EvmTokenAdapter {
+                 addressOrDenom: erc20Quotes[0].addressOrDenom,
+                 amount: tokenFeeAmount,
+             }
+-            : undefined;
++            : nativeWarpFee > 0n
++                ? { addressOrDenom: feeQuotes[1].addressOrDenom, amount: nativeWarpFee }
++                : undefined;
+         return {
+             igpQuote: { amount: nativeAmount },
+             tokenFeeQuote,
+diff --git a/dist/warp/WarpCore.js b/dist/warp/WarpCore.js
+index 3376cb4e673a5d1e55ce6b9ea2bb3d4d130b1d88..5ee76c76e6659fefe2028520b561fd7040066f19 100644
+--- a/dist/warp/WarpCore.js
++++ b/dist/warp/WarpCore.js
+@@ -937,7 +937,8 @@ export class WarpCore {
+             amount,
+             destinationToken,
+         });
+-        const feeEstimate = { interchainQuote, localQuote };
++        // Include the token fee: a native route's fee is no longer inside interchainQuote.
++        const feeEstimate = { interchainQuote, localQuote, tokenFeeQuote };
+         // Check 5: Ensure balances can cover the COMBINED amount and fees
+         const maxTransfer = await this.getMaxTransferAmount({
+             balance: senderBalanceAmount,
