@@ -21,7 +21,7 @@ import {
   TransferItemType,
   useMergedTransferHistory,
 } from '../messages/useMergedTransferHistory';
-import { useMessageHistory } from '../messages/useMessageHistory';
+import { HISTORY_FROM_EXPLORER, useMessageHistory } from '../messages/useMessageHistory';
 import { useStore } from '../store';
 import { tryFindToken, useWarpCore } from '../tokens/hooks';
 import { TokenChainIcon } from '../tokens/TokenChainIcon';
@@ -196,19 +196,22 @@ export function SideBarMenu({
             <span className="text-base font-normal tracking-wider text-white">
               Transfer History
             </span>
-            <button
-              onClick={refresh}
-              disabled={isLoading}
-              className="sidebar-menu-refresh rounded p-1 hover:bg-accent-500/50 disabled:opacity-50"
-              title="Refresh"
-            >
-              <RefreshIcon
-                width={20}
-                height={20}
-                color="white"
-                className={isLoading ? 'animate-spin' : ''}
-              />
-            </button>
+            {/* The refresh button reloads the explorer history, which is off */}
+            {HISTORY_FROM_EXPLORER && (
+              <button
+                onClick={refresh}
+                disabled={isLoading}
+                className="sidebar-menu-refresh rounded p-1 hover:bg-accent-500/50 disabled:opacity-50"
+                title="Refresh"
+              >
+                <RefreshIcon
+                  width={20}
+                  height={20}
+                  color="white"
+                  className={isLoading ? 'animate-spin' : ''}
+                />
+              </button>
+            )}
           </div>
           <div className="flex grow flex-col pb-4">
             {isRefreshing ? (

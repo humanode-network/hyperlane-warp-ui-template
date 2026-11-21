@@ -22,6 +22,9 @@ import { MessageStatus, MessageStub, WarpTransferInfo } from './types';
 
 const PAGE_LIMIT = 15;
 const REFRESH_INTERVAL_MS = 60_000;
+// Humanode bridge: off. The Hyperlane explorer API does not index the bridge's chains, and
+// each poll sent the user's wallet addresses to it. The sidebar keeps the local history.
+export const HISTORY_FROM_EXPLORER = false;
 
 interface UseMessageHistoryResult {
   messages: MessageStub[];
@@ -93,7 +96,7 @@ export function useMessageHistory(
         // Use raw DB row count for offset to avoid drift when parseMessageEntry filters entries
         return allPages.reduce((acc, page) => acc + page.rawCount, 0);
       },
-      enabled: walletAddresses.length > 0 && warpRouteAddresses.length > 0,
+      enabled: HISTORY_FROM_EXPLORER && walletAddresses.length > 0 && warpRouteAddresses.length > 0,
       refetchInterval: REFRESH_INTERVAL_MS,
       refetchOnWindowFocus: false,
     });
