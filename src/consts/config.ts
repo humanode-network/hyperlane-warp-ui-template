@@ -51,8 +51,8 @@ export const config: Config = Object.freeze({
   enableExplorerLink: false,
   explorerApiUrl,
   relayApiUrl,
-  defaultOriginToken: 'ethereum-USDC',
-  defaultDestinationToken: 'base-USDC',
+  defaultOriginToken: 'humanodetestnet5-eHMND',
+  defaultDestinationToken: 'basesepolia-HMND',
   isDevMode,
   registryUrl,
   registryBranch,
@@ -61,15 +61,8 @@ export const config: Config = Object.freeze({
   version,
   transferBlacklist,
   walletConnectProjectId,
-  walletProtocols: [
-    ProtocolType.Ethereum,
-    ProtocolType.Sealevel,
-    ProtocolType.Cosmos,
-    ProtocolType.Starknet,
-    ProtocolType.Radix,
-    ProtocolType.Tron,
-    ProtocolType.Aleo,
-  ],
+  // Humanode bridge: its routes are EVM-only.
+  walletProtocols: [ProtocolType.Ethereum],
   shouldDisableChains: false,
   rpcOverrides,
   enableTrackingEvents: false,
@@ -91,64 +84,6 @@ export const config: Config = Object.freeze({
     'ink',
     'monad',
   ],
-  featuredTokens: [
-    // USDC
-    'arbitrum-USDC',
-    'avalanche-USDC',
-    'base-USDC',
-    'eclipsemainnet-USDC',
-    'ethereum-USDC',
-    'hyperevm-USDC',
-    'ink-USDC',
-    'linea-USDC',
-    'monad-USDC',
-    'optimism-USDC',
-    'polygon-USDC',
-    'solanamainnet-USDC',
-    'unichain-USDC',
-    'worldchain-USDC',
-
-    // ETH
-    'arbitrum-ETH',
-    'base-ETH',
-    'ethereum-ETH',
-    'optimism-ETH',
-    'hyperevm-ETH',
-
-    // USDT
-    'eclipsemainnet-USDT',
-    'ethereum-USDT',
-    'solanamainnet-USDT',
-    'hyperevm-USDT',
-    'aleo-USDT',
-    'bsc-USDT',
-    'matchain-USDT',
-
-    // SOL
-    'eclipsemainnet-SOL',
-    'solanamainnet-SOL',
-    'aleo-SOL',
-    'hyperevm-SOL',
-    'radix-hSOL',
-    'sonicsvm-SOL',
-    'starknet-SOL',
-
-    // WBTC
-    'eclipsemainnet-WBTC',
-    'ethereum-WBTC',
-    'hyperevm-WBTC',
-    'radix-hWBTC',
-    'aleo-WBTC',
-
-    // HYPER
-    'arbitrum-HYPER',
-    'base-HYPER',
-    'bsc-HYPER',
-    'ethereum-HYPER',
-    'optimism-HYPER',
-
-    // stHYPER
-    'bsc-stHYPER',
-    'ethereum-stHYPER',
-  ],
+  // Humanode bridge: no featured tokens, so the picker lists all of the bridge's tokens.
+  featuredTokens: [],
 });
