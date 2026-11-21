@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { getOriginTokenButton } from '../helpers/locators';
+import { onlyCustomRoutes } from '../helpers/constants';
 
 test.describe('Chain Selection - Edit Chain', () => {
   test('should enter edit mode and open chain edit modal', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     await page.goto('http://localhost:3000');
     await page.getByText('Send').first().waitFor({ state: 'visible' });
 
@@ -40,6 +42,7 @@ test.describe('Chain Selection - Edit Chain', () => {
   });
 
   test('should close edit modal with Back button', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     await page.goto('http://localhost:3000');
     await page.getByText('Send').first().waitFor({ state: 'visible' });
 

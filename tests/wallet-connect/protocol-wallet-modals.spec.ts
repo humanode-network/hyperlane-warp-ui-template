@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { getOriginTokenButton } from '../helpers/locators';
+import { onlyCustomRoutes } from '../helpers/constants';
 
 // Helper to select a token from a given chain via the token selector
 async function selectToken(
@@ -58,6 +59,7 @@ test.describe('Wallet Connect - Protocol Modals', () => {
   });
 
   test('Sealevel: should show Solana wallet modal', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Solana routes: the bridge routes are EVM-only');
     await selectToken(page, 'solana', /solanamainnet SOL Solana/);
 
     await page
@@ -82,6 +84,7 @@ test.describe('Wallet Connect - Protocol Modals', () => {
   test('Cosmos: should show Cosmos wallet modal', async ({
     page,
   }) => {
+    test.skip(onlyCustomRoutes, 'no Cosmos routes: the bridge routes are EVM-only');
     await selectToken(page, 'TIA', /celestia TIA Celestia/);
 
     await page
@@ -108,6 +111,7 @@ test.describe('Wallet Connect - Protocol Modals', () => {
   });
 
   test('Aleo: should show Aleo wallet modal', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Aleo routes: the bridge routes are EVM-only');
     await selectToken(page, 'aleo', /aleo ALEO Aleo Aleo/);
 
     await page
@@ -131,6 +135,7 @@ test.describe('Wallet Connect - Protocol Modals', () => {
   });
 
   test('Radix: should show Radix wallet overlay', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Radix routes: the bridge routes are EVM-only');
     await selectToken(page, 'radix', /radix hSOL Radix/);
 
     await page
@@ -150,6 +155,7 @@ test.describe('Wallet Connect - Protocol Modals', () => {
   });
 
   test('Starknet: should show Starknet wallet modal', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'no Starknet routes: the bridge routes are EVM-only');
     await selectToken(page, 'starknet', /starknet SOL Starknet/);
 
     await page

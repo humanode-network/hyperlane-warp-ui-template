@@ -4,9 +4,11 @@
 import { test, expect } from '@playwright/test';
 import { config } from '../../src/consts/config';
 import { getOriginTokenButton, getDestinationTokenButton } from '../helpers/locators';
+import { onlyCustomRoutes } from '../helpers/constants';
 
 test.describe('Page Load - Query Param Token Override', () => {
   test('should use query params to set origin and destination tokens', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     // 1. Navigate to app with query params to override origin and destination tokens to ETH
     await page.goto(
       'http://localhost:3000?origin=base&originToken=ETH&destination=ethereum&destinationToken=ETH',
@@ -50,6 +52,7 @@ test.describe('Page Load - Query Param Token Override', () => {
   });
 
   test('should handle partial query params (origin only)', async ({ page }) => {
+    test.skip(onlyCustomRoutes, 'needs canonical registry routes, dropped by the empty whitelist');
     // 1. Navigate with partial query params (origin only)
     await page.goto('http://localhost:3000?origin=base&originToken=ETH');
 

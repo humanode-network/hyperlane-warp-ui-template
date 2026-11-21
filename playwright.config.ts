@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import { onlyCustomRoutes } from './tests/helpers/constants';
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -13,6 +15,18 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  // With an empty route whitelist (only the app's own EVM routes) these specs have nothing to
+  // test: they need canonical registry routes or non-EVM wallets. routes-param expects the embed
+  // page to fail on an unknown route, but the bridge's own routes always load.
+  testIgnore: onlyCustomRoutes
+    ? [
+        'chain-selection/filter-by-protocol.spec.ts',
+        'e2e-wallet/{approval,balance-display,destination-router,same-symbol-dedup,tx-payload}/**',
+        'e2e-wallet/autoconnect/{cosmos,radix,solana,starknet}.spec.ts',
+        'embed/routes-param.spec.ts',
+        'token-selection/{filter-chains,select-destination-token,select-origin-token}.spec.ts',
+      ]
+    : [],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
